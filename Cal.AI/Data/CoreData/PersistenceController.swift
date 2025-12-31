@@ -21,7 +21,9 @@ final class PersistenceController {
     }
 
     init(inMemory: Bool = false) {
-        container = NSPersistentContainer(name: "Cal_AI")
+        // Use programmatic Core Data model instead of .xcdatamodeld file
+        let model = CoreDataModel.createModel()
+        container = NSPersistentContainer(name: "Cal_AI", managedObjectModel: model)
 
         if inMemory {
             container.persistentStoreDescriptions.first?.url = URL(fileURLWithPath: "/dev/null")
