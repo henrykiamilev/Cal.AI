@@ -37,7 +37,8 @@ enum AppConfiguration {
 
     // MARK: - Feature Flags
     static var isAIEnabled: Bool {
-        !openAIKey.isEmpty
+        // Always enabled - uses on-device rule-based planning (no API key required)
+        true
     }
 
     static var isDebugModeEnabled: Bool {
