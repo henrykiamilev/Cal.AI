@@ -91,12 +91,7 @@ final class OnboardingViewModel: ObservableObject {
             hasCompletedOnboarding: true
         )
 
-        if userRepository.createUser(profile) != nil {
-            // Request notification permission
-            Task {
-                await NotificationManager.shared.requestAuthorization()
-            }
-        } else {
+        if userRepository.createUser(profile) == nil {
             errorMessage = "Failed to save profile. Please try again."
         }
 

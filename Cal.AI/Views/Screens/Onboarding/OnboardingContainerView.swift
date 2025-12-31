@@ -343,7 +343,7 @@ struct NotificationsStepView: View {
             // Buttons
             VStack(spacing: 12) {
                 PrimaryButton("Enable Notifications", icon: "bell") {
-                    Task {
+                    Task { @MainActor in
                         await NotificationManager.shared.requestAuthorization()
                         viewModel.completeOnboarding()
                         onComplete()
