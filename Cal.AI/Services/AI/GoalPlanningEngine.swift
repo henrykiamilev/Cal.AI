@@ -1,9 +1,9 @@
 import Foundation
 import Combine
 
-/// Orchestrates AI-powered goal planning and progress tracking
+/// Orchestrates goal planning and progress tracking using on-device algorithms
 final class GoalPlanningEngine: ObservableObject {
-    private let aiService: AIServiceProtocol
+    private let planningService: AIServiceProtocol
     private let goalRepository: GoalRepository
     private let eventRepository: EventRepository
     private let userRepository: UserRepository
@@ -13,12 +13,12 @@ final class GoalPlanningEngine: ObservableObject {
     @Published var lastError: Error?
 
     init(
-        aiService: AIServiceProtocol = OpenAIService(),
+        planningService: AIServiceProtocol = RuleBasedPlanningService(),
         goalRepository: GoalRepository = GoalRepository(),
         eventRepository: EventRepository = EventRepository(),
         userRepository: UserRepository = .shared
     ) {
-        self.aiService = aiService
+        self.planningService = planningService
         self.goalRepository = goalRepository
         self.eventRepository = eventRepository
         self.userRepository = userRepository
@@ -41,8 +41,8 @@ final class GoalPlanningEngine: ObservableObject {
             let endDate = Calendar.current.date(byAdding: .month, value: 3, to: Date())!
             let existingEvents = eventRepository.fetch(from: Date(), to: endDate)
 
-            // Generate plan using AI
-            let schedule = try await aiService.generateGoalPlan(
+            // Generate plan using on-device planning service
+            let schedule = try await planningService.generateGoalPlan(
                 goal: goal,
                 userProfile: userProfile,
                 existingCommitments: existingEvents
@@ -92,7 +92,7 @@ final class GoalPlanningEngine: ObservableObject {
             let completedTasks = currentSchedule.phases.flatMap { $0.tasks }.filter { $0.isCompleted }
             let missedTasks = currentSchedule.overdueTasks
 
-            let adjustedSchedule = try await aiService.adjustSchedule(
+            let adjustedSchedule = try await planningService.adjustSchedule(
                 currentSchedule: currentSchedule,
                 goal: goal,
                 completedTasks: completedTasks,
@@ -126,7 +126,7 @@ final class GoalPlanningEngine: ObservableObject {
         defer { isAnalyzing = false }
 
         do {
-            let analysis = try await aiService.analyzeProgress(goal: goal, schedule: schedule)
+            let analysis = try await planningService.analyzeProgress(goal: goal, schedule: schedule)
             return analysis
         } catch {
             lastError = error
@@ -143,7 +143,7 @@ final class GoalPlanningEngine: ObservableObject {
         }
 
         do {
-            return try await aiService.getSuggestions(
+            return try await planningService.getSuggestions(
                 goal: goal,
                 schedule: schedule,
                 userProfile: userProfile

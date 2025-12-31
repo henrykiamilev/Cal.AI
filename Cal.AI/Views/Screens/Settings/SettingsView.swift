@@ -19,28 +19,21 @@ struct SettingsView: View {
                 }
 
                 // AI Settings
-                Section("AI Settings") {
+                Section("AI Planning") {
                     HStack {
-                        Label("OpenAI API Key", systemImage: "key")
+                        Label("Planning Engine", systemImage: "sparkles")
 
                         Spacer()
 
-                        Text(viewModel.maskedAPIKey)
+                        Text("On-Device")
                             .font(.caption)
-                            .foregroundColor(.textGray)
-                    }
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        viewModel.showingAPIKeyInput = true
+                            .fontWeight(.medium)
+                            .foregroundColor(.successGreen)
                     }
 
-                    if viewModel.hasAPIKey {
-                        Button(role: .destructive) {
-                            viewModel.removeAPIKey()
-                        } label: {
-                            Label("Remove API Key", systemImage: "trash")
-                        }
-                    }
+                    Text("Goal plans are generated locally on your device using smart templates. No internet connection or API key required.")
+                        .font(.caption)
+                        .foregroundColor(.textGray)
                 }
 
                 // Preferences
@@ -100,11 +93,6 @@ struct SettingsView: View {
                     ProfileEditorView(profile: profile) { updatedProfile in
                         viewModel.updateProfile(updatedProfile)
                     }
-                }
-            }
-            .sheet(isPresented: $viewModel.showingAPIKeyInput) {
-                APIKeyInputView(apiKey: $viewModel.apiKey) {
-                    viewModel.saveAPIKey()
                 }
             }
             .sheet(isPresented: $showingExportSheet) {
@@ -224,54 +212,6 @@ struct ProfileEditorView: View {
     }
 }
 
-struct APIKeyInputView: View {
-    @Environment(\.dismiss) private var dismiss
-    @Binding var apiKey: String
-    let onSave: () -> Void
-
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: 24) {
-                Image(systemName: "key.fill")
-                    .font(.system(size: 50))
-                    .foregroundColor(.primaryBlue)
-
-                VStack(spacing: 8) {
-                    Text("OpenAI API Key")
-                        .font(.headline)
-
-                    Text("Enter your OpenAI API key to enable AI-powered goal planning.")
-                        .font(.subheadline)
-                        .foregroundColor(.textGray)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                }
-
-                CustomTextField(
-                    placeholder: "sk-...",
-                    text: $apiKey,
-                    icon: "key",
-                    isSecure: true
-                )
-                .padding(.horizontal)
-
-                Spacer()
-
-                VStack(spacing: 12) {
-                    PrimaryButton("Save API Key", action: onSave)
-                        .disabled(apiKey.trimmed.isEmpty)
-
-                    Button("Cancel") { dismiss() }
-                        .foregroundColor(.textGray)
-                }
-                .padding(.horizontal)
-                .padding(.bottom)
-            }
-            .padding(.top, 40)
-        }
-    }
-}
-
 struct NotificationSettingsView: View {
     @State private var eventReminders = true
     @State private var taskReminders = true
@@ -317,7 +257,7 @@ struct AvailabilitySettingsView: View {
                 }
                 .padding(.vertical)
             } footer: {
-                Text("This is used by AI to plan realistic schedules for your goals.")
+                Text("This is used to plan realistic schedules for your goals.")
             }
         }
         .navigationTitle("Availability")
